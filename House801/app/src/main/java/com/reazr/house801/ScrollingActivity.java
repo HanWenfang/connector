@@ -1,5 +1,11 @@
 package com.reazr.house801;
-
+/*
+* android list item layout:
+* http://www.androidhive.info/2012/02/android-custom-listview-with-image-and-text/
+*
+*
+*
+* */
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Handler;
@@ -194,7 +200,8 @@ public class ScrollingActivity extends AppCompatActivity implements Runnable{
 
         @Override
         public void onClick(View v) {
-
+            Snackbar.make(v, "Replace with your own action", Snackbar.LENGTH_SHORT)
+                    .setAction("Action", null).show();
         }
     }
 
