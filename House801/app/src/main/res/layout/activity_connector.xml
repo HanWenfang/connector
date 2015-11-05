@@ -27,7 +27,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <EditText android:id="@+id/host"
+                <EditText android:id="@+id/chost"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="host"
@@ -41,12 +41,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <EditText android:id="@+id/password"
+                <EditText android:id="@+id/cport"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="port"
-                    android:imeActionId="@+id/cport"
-                    android:imeActionLabel="@string/action_sign_in_short"
                     android:imeOptions="actionUnspecified"
                     android:inputType="numberDecimal"
                     android:maxLines="1"

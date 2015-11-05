@@ -21,6 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -42,10 +43,7 @@ import static android.Manifest.permission.READ_CONTACTS;
  */
 public class ConnectorActivity extends AppCompatActivity {
 
-    /**
-     * Id to identity READ_CONTACTS permission request.
-     */
-    private static final int REQUEST_READ_CONTACTS = 0;
+    private static final String TAG = "ConnectorActivity";
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -66,7 +64,7 @@ public class ConnectorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connector);
 
-        mHostView = (EditText) findViewById(R.id.host);
+        mHostView = (EditText) findViewById(R.id.chost);
         mPortView = (EditText) findViewById(R.id.cport);
         mConnectorFormView = findViewById(R.id.connector_form);
         mProgressView = findViewById(R.id.progress);
@@ -78,6 +76,7 @@ public class ConnectorActivity extends AppCompatActivity {
         mConnectorFormButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d(TAG, "connector form submit");
                 record();
             }
         });
@@ -99,7 +98,15 @@ public class ConnectorActivity extends AppCompatActivity {
         }
 
         // Reset errors.
+        if (mHostView == null) {
+            Log.d(TAG, "mPortView is null");
+        }
+
         mHostView.setError(null);
+        if (mPortView == null) {
+            Log.d(TAG, "mPortView is null");
+        }
+
         mPortView.setError(null);
 
         // Store values at the time of the login attempt.
@@ -150,16 +157,7 @@ public class ConnectorActivity extends AppCompatActivity {
             mRecordTask.execute((Void) null);
         }
     }
-
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
-    }
-
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
-    }
+    
 
     /**
      * Shows the progress UI and hides the login form.
