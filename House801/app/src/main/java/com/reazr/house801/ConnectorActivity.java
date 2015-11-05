@@ -157,7 +157,7 @@ public class ConnectorActivity extends AppCompatActivity {
             mRecordTask.execute((Void) null);
         }
     }
-    
+
 
     /**
      * Shows the progress UI and hides the login form.
@@ -213,7 +213,11 @@ public class ConnectorActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-
+            Connector connector = new Connector();
+            connector.host = mHost;
+            connector.port = mPort;
+            connector.type = mType;
+            DatabaseHelper.getsInstance(ConnectorActivity.this).insertConnector(connector);
             return true;
         }
 
