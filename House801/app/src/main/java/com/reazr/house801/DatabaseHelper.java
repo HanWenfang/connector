@@ -8,10 +8,14 @@ package com.reazr.house801;
 import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by susan on 15-11-3.
@@ -88,5 +92,62 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
         return connectorId;
     }
+
+    public long updateConnector(Connector connector) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(KEY_CONNECTOR_ID, connector.cid);
+        contentValues.put(KEY_CONNECTOR_TYPE, connector.type);
+        contentValues.put(KEY_CONNECTOR_HOST, connector.host);
+        contentValues.put(KEY_CONNECTOR_PORT, connector.port);
+
+        return db.update(TABLE_CONNECTOR, contentValues, "id=?", new String[]{ String.valueOf(connector.cid) });
+    }
+
+    public long deleteConnector(Connector connector) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        long cid = -1;
+        try {
+            cid= db.delete(TABLE_CONNECTOR, "id=?", new String[]{ String.valueOf(connector.cid) });
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+        }
+
+        return cid;
+    }
+
+    public List<Connector> getAllConnector() {
+        List<Connector> connectors = new ArrayList<Connector>();
+        String query = String.format("select * from %s", TABLE_CONNECTOR);
+        SQLiteDatabase db = getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(query, null);
+        try {
+            if (cursor.moveToFirst()) {
+                do {
+                    Connector connector = new Connector();
+                    connector.cid = cursor.getInt(cursor.getColumnIndex(KEY_CONNECTOR_ID));
+                    connector.type = cursor.getInt(cursor.getColumnIndex(KEY_CONNECTOR_TYPE));
+                    connector.host = cursor.getString(cursor.getColumnIndex(KEY_CONNECTOR_HOST));
+                    connector.port = cursor.getInt(cursor.getColumnIndex(KEY_CONNECTOR_PORT));
+
+                    connectors.add(connector);
+                } while (cursor.moveToFirst());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null && cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+
+        return connectors;
+    }
+
 
 }
