@@ -21,7 +21,7 @@ import java.util.List;
  * Created by susan on 15-11-3.
  */
 public class DatabaseHelper extends SQLiteOpenHelper{
-
+    public static final String TAG = "DatabaseHelper";
     private static DatabaseHelper sInstance;
 
     private static final String DATABASE_NAME = "reazr";
@@ -133,10 +133,12 @@ public class DatabaseHelper extends SQLiteOpenHelper{
                     int type = cursor.getInt(cursor.getColumnIndex(KEY_CONNECTOR_TYPE));
                     String host = cursor.getString(cursor.getColumnIndex(KEY_CONNECTOR_HOST));
                     int port = cursor.getInt(cursor.getColumnIndex(KEY_CONNECTOR_PORT));
+                    Log.d(TAG, String.format("cid=%d type=%d host=%s port=%d", cid, type, host, port));
+
                     Connector connector = new Connector(cid, type, host, port);
 
                     connectors.add(connector);
-                } while (cursor.moveToFirst());
+                } while (cursor.moveToNext());
             }
         } catch (Exception e) {
             e.printStackTrace();
