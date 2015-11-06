@@ -1,6 +1,8 @@
 package com.reazr.house801;
 
 import android.os.AsyncTask;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import java.io.BufferedReader;

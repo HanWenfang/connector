@@ -4,6 +4,7 @@ package com.reazr.house801;
 * http://www.androidhive.info/2012/02/android-custom-listview-with-image-and-text/
 *
 * */
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -46,8 +47,7 @@ public class ScrollingActivity extends AppCompatActivity{
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        ArrayList<Connector> connectors = new ArrayList<Connector>();
-        connectors = DatabaseHelper.getsInstance(ScrollingActivity.this).getAllConnector();
+        ArrayList<Connector> connectors = DatabaseHelper.getsInstance(ScrollingActivity.this).getAllConnector();
 
         mAdapter = new MyAdapter(connectors);
         mRecyclerView.setAdapter(mAdapter);
@@ -92,7 +92,6 @@ public class ScrollingActivity extends AppCompatActivity{
         private TextView status;
         private TextView host;
         private TextView port;
-        private AsyncConnection aconnection;
 
         private Connector connector;
 
@@ -107,18 +106,35 @@ public class ScrollingActivity extends AppCompatActivity{
 
         public void bindCrime(Connector conn) {
             this.connector = conn;
-            if (connector.type == 1) {
-                Log.d(TAG, "bindCime connector");
-                aconnection = new AsyncConnection(conn.host, conn.port, 1000, new TcpConnectionHandler());
-            }
-            status.setText("closed");
+
+            String status_text = conn.status == 0 ? "close" : "open";
+            status.setText(status_text);
             host.setText(conn.host);
             port.setText(String.valueOf(conn.port));
         }
 
         @Override
         public void onClick(View v) {
-            aconnection.execute();
+            if (connector.type == 1 && connector.status == 0) {
+                status.setText("connecting...");
+
+                Resources resource = (Resources) getBaseContext().getResources();
+                status.setTextColor(resource.getColor(R.color.colorAccentcc));
+
+                Log.d(TAG, "bindCime connector");
+
+                AsyncConnection aconnection = new AsyncConnection(connector.host, connector.port, 1000, new TcpConnectionHandler());
+                aconnection.execute();
+                AsyncConnPool.pool.put(connector.cid, aconnection);
+
+                connector.status = 1;
+
+                String status_text = connector.status == 0 ? "close" : "open";
+                status.setText(status_text);
+            }
+            else if (connector.type == 1 && connector.status == 1) {
+                ChatActivity.actionStart(ScrollingActivity.this, connector.cid);
+            }
         }
     }
 
