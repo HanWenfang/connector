@@ -36,9 +36,6 @@ import java.util.List;
 public class ScrollingActivity extends AppCompatActivity implements Runnable{
     private static final String TAG = "ScrollingActivity";
 
-
-    private static final String Host = "172.16.0.29";
-    private static final int Port = 3591;
     private Socket socket = null;
     private BufferedReader in = null;
     private PrintWriter out = null;
@@ -46,7 +43,6 @@ public class ScrollingActivity extends AppCompatActivity implements Runnable{
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,13 +61,9 @@ public class ScrollingActivity extends AppCompatActivity implements Runnable{
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        ArrayList<Server> servers = new ArrayList<Server>();
-        for (int i=0; i<100; ++i) {
-            servers.add(new Server("closed", "172.16.0.29", 3591));
-        }
+        ArrayList<Connector> connectors = DatabaseHelper.getsInstance(ScrollingActivity.this).getAllConnector();
 
-
-        mAdapter = new MyAdapter(servers);
+        mAdapter = new MyAdapter(connectors);
         mRecyclerView.setAdapter(mAdapter);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -85,7 +77,6 @@ public class ScrollingActivity extends AppCompatActivity implements Runnable{
             }
         });
 
-        new Thread(ScrollingActivity.this).start();
     }
 
     @Override
@@ -128,7 +119,6 @@ public class ScrollingActivity extends AppCompatActivity implements Runnable{
 
             } catch (IOException ex) {
                 ex.printStackTrace();
-
             }
 
             while (true) {
@@ -175,16 +165,16 @@ public class ScrollingActivity extends AppCompatActivity implements Runnable{
         return super.onOptionsItemSelected(item);
     }
 
-    private class ServerHolder extends RecyclerView.ViewHolder
+    private class ConnectorHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
 
         private TextView status;
         private TextView host;
         private TextView port;
 
-        private Server server;
+        private Connector connector;
 
-        public ServerHolder(View itemView) {
+        public ConnectorHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
 
@@ -193,44 +183,45 @@ public class ScrollingActivity extends AppCompatActivity implements Runnable{
             port = (TextView) itemView.findViewById(R.id.port);
         }
 
-        public void bindCrime(Server server) {
-            this.server = server;
-            status.setText(server.status);
-            host.setText(server.host);
-            port.setText(String.valueOf(server.port));
+        public void bindCrime(Connector conn) {
+            this.connector = conn;
+            status.setText("closed");
+            host.setText(conn.host);
+            port.setText(String.valueOf(conn.port));
         }
 
         @Override
         public void onClick(View v) {
-            Snackbar.make(v, "Replace with your own action", Snackbar.LENGTH_SHORT)
-                    .setAction("Action", null).show();
+
+            new Thread(ScrollingActivity.this).start();
+
         }
     }
 
-    private class MyAdapter extends RecyclerView.Adapter<ServerHolder> {
+    private class MyAdapter extends RecyclerView.Adapter<ConnectorHolder> {
 
-        private List<Server> servers;
+        private List<Connector> connectors;
 
-        public MyAdapter(List<Server> servers) {
-            this.servers = servers;
+        public MyAdapter(List<Connector> connectors) {
+            this.connectors = connectors;
         }
 
         @Override
-        public ServerHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public ConnectorHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
             View view = layoutInflater.inflate(R.layout.list_view_item, parent, false);
-            return new ServerHolder(view);
+            return new ConnectorHolder(view);
         }
 
         @Override
-        public void onBindViewHolder(ServerHolder holder, int position) {
-            Server server = servers.get(position);
+        public void onBindViewHolder(ConnectorHolder holder, int position) {
+            Connector server = connectors.get(position);
             holder.bindCrime(server);
         }
 
         @Override
         public int getItemCount() {
-            return servers.size();
+            return connectors.size();
         }
     }
 }

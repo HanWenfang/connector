@@ -120,8 +120,8 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         return cid;
     }
 
-    public List<Connector> getAllConnector() {
-        List<Connector> connectors = new ArrayList<Connector>();
+    public ArrayList<Connector> getAllConnector() {
+        ArrayList<Connector> connectors = new ArrayList<Connector>();
         String query = String.format("select * from %s", TABLE_CONNECTOR);
         SQLiteDatabase db = getReadableDatabase();
 
@@ -129,11 +129,11 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         try {
             if (cursor.moveToFirst()) {
                 do {
-                    Connector connector = new Connector();
-                    connector.cid = cursor.getInt(cursor.getColumnIndex(KEY_CONNECTOR_ID));
-                    connector.type = cursor.getInt(cursor.getColumnIndex(KEY_CONNECTOR_TYPE));
-                    connector.host = cursor.getString(cursor.getColumnIndex(KEY_CONNECTOR_HOST));
-                    connector.port = cursor.getInt(cursor.getColumnIndex(KEY_CONNECTOR_PORT));
+                    int cid = cursor.getInt(cursor.getColumnIndex(KEY_CONNECTOR_ID));
+                    int type = cursor.getInt(cursor.getColumnIndex(KEY_CONNECTOR_TYPE));
+                    String host = cursor.getString(cursor.getColumnIndex(KEY_CONNECTOR_HOST));
+                    int port = cursor.getInt(cursor.getColumnIndex(KEY_CONNECTOR_PORT));
+                    Connector connector = new Connector(cid, type, host, port);
 
                     connectors.add(connector);
                 } while (cursor.moveToFirst());
