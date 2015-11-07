@@ -2,7 +2,6 @@ package com.reazr.house801;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;

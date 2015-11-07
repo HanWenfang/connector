@@ -33,6 +33,12 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     private static final String KEY_CONNECTOR_HOST = "host";
     private static final String KEY_CONNECTOR_PORT = "port";
 
+    private static final String TABLE_CHAT_MESSAGE = "message";
+    private static final String KEY_CHAT_MESSAGE_ID = "id";
+    private static final String KEY_CHAT_CONNECTOR_CID = "cid";
+    private static final String KEY_CHAT_AUTHOR = "author"; // 0- you 1- other
+    private static final String KEY_CHAT_MESSAGE = "text";
+
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -54,6 +60,15 @@ public class DatabaseHelper extends SQLiteOpenHelper{
                     KEY_CONNECTOR_PORT + " INTEGER" +
                 ")";
         db.execSQL(CREATE_CONNECTOR_TABLE);
+
+        String CREATE_CHAT_MSG_TABLE = "CREATE TABLE " + TABLE_CHAT_MESSAGE +
+                "( " +
+                KEY_CHAT_MESSAGE_ID + " INTEGER PRIMARY KEY, " +
+                KEY_CHAT_CONNECTOR_CID + " INTEGER, " +
+                KEY_CHAT_AUTHOR + " INTEGER, " +
+                KEY_CHAT_MESSAGE + " TEXT" +
+                ")";
+        db.execSQL(CREATE_CHAT_MSG_TABLE);
     }
 
     @Override
@@ -91,6 +106,28 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         }
 
         return connectorId;
+    }
+
+    public long insertMsg(Msg msg) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(KEY_CHAT_MESSAGE, msg.text);
+        contentValues.put(KEY_CHAT_CONNECTOR_CID, msg.cid);
+        contentValues.put(KEY_CHAT_AUTHOR, msg.author);
+        long msgId = -1;
+
+        db.beginTransaction();
+        try {
+            msgId = db.insertOrThrow(TABLE_CHAT_MESSAGE, null, contentValues);
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        } finally {
+            db.endTransaction();
+        }
+
+        return msgId;
     }
 
     public long updateConnector(Connector connector) {
@@ -149,6 +186,37 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         }
 
         return connectors;
+    }
+
+    public ArrayList<Msg> getChatMessage(int pcid) {
+        ArrayList<Msg> msgs = new ArrayList<Msg>();
+        String query = String.format("select * from %s where cid=?%d order by id asc", TABLE_CHAT_MESSAGE, pcid);
+        SQLiteDatabase db = getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(query, null);
+        try {
+            if (cursor.moveToFirst()) {
+                do {
+                    int mid = cursor.getInt(cursor.getColumnIndex(KEY_CHAT_MESSAGE_ID));
+                    int cid = cursor.getInt(cursor.getColumnIndex(KEY_CHAT_CONNECTOR_CID));
+                    int author = cursor.getInt(cursor.getColumnIndex(KEY_CHAT_AUTHOR));
+                    String text = cursor.getString(cursor.getColumnIndex(KEY_CHAT_MESSAGE));
+                    Log.d(TAG, String.format("mid=%d author=%d text=%s ", mid, author, text));
+
+                    Msg msg = new Msg(mid, cid, author, text);
+
+                    msgs.add(msg);
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null && cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+
+        return msgs;
     }
 
 
