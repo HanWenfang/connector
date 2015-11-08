@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -26,6 +27,8 @@ public class ChatActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
+    private Button sendButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,6 +36,7 @@ public class ChatActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         cid = intent.getIntExtra("cid", 0);
+        asyncConnection = AsyncConnPool.pool.get(cid);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.chat_text_list);
         mRecyclerView.setHasFixedSize(true);
@@ -40,26 +44,22 @@ public class ChatActivity extends AppCompatActivity {
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        ArrayList<String> texts = new ArrayList<String>();
-        texts.add("Hello");
-        texts.add("Hi");
-        texts.add("FuckOff");
-        texts.add("Why are you so angry?");
-        texts.add("Why are you so angry?");
-        texts.add("Why are you so angry?");
-        texts.add("Why are you so angry?");
-        texts.add("Why are you so angry?");
-        texts.add("Why are you so angry?");
-        texts.add("Why are you so angry?");
-        texts.add("Why are you so angry?");
-        texts.add("Why are you so angry?");
-        texts.add("Why are you so angry?");
-        texts.add("Why are you so angry?");
-        texts.add("Why are you so angry?");
+        ArrayList<Msg> texts = DatabaseHelper.getsInstance(ChatActivity.this).getChatMessage(cid);
 
+        texts.add(0, new Msg(cid, 1, "Hello Mr.!") );
+        texts.add(1, new Msg(cid, 0, "Hi Miss!") );
 
         mAdapter = new MyAdapter(texts);
         mRecyclerView.setAdapter(mAdapter);
+
+        sendButton = (Button)findViewById(R.id.chat_send);
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Log.d(TAG, "chat send click!");
+            }
+        });
     }
 
     public static void actionStart(Context context, int cid) {
@@ -83,27 +83,30 @@ public class ChatActivity extends AppCompatActivity {
             chatText = (TextView) itemView.findViewById(R.id.chat_text);
         }
 
-        public void bindCrime(String text) {
+        public void bindCrime(Msg text) {
 
-            Log.d(TAG, text);
+            Log.d(TAG, text.text);
             if (chatText == null) {
                 Log.d(TAG, "chatText is null");
             }
 
-            chatText.setText(text);
+            if (text.author == 0) {
+                chatText.setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
+            }
+            chatText.setText(text.text);
         }
 
         @Override
         public void onClick(View v) {
-
+            TextActivity.actionStart(ChatActivity.this, chatText.getText().toString());
         }
     }
 
     private class MyAdapter extends RecyclerView.Adapter<ChatHolder> {
 
-        private List<String> texts;
+        private List<Msg> texts;
 
-        public MyAdapter(List<String> texts) {
+        public MyAdapter(List<Msg> texts) {
             this.texts = texts;
         }
 
@@ -116,7 +119,7 @@ public class ChatActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(ChatHolder holder, int position) {
-            String text = texts.get(position);
+            Msg text = texts.get(position);
             holder.bindCrime(text);
         }
 

@@ -41,7 +41,7 @@
 
         <EditText
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
             android:id="@+id/editText"
             android:layout_gravity="center_horizontal"
             android:background="@drawable/edittextstyle"

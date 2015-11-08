@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#36BEAF</color>
-    <color name="colorPrimaryDark">#1B8D8F</color>
+    <color name="colorPrimary">#36beaf</color>
+    <color name="colorPrimaryDark">#32b3a4</color>
     <drawable name="colorPrimaryDark">#1B8D8F</drawable>
     <color name="colorAccent">#D86764</color>
     <drawable name="colorAccent">#D86764</drawable>
@@ -9,4 +9,5 @@
     <color name="colorAccentDark">#d44107</color>
     <color name="mark">#F9DB4C</color>
     <color name="white">#FFFFFF</color>
+    <color name="foreground">@android:color/white</color>
 </resources>

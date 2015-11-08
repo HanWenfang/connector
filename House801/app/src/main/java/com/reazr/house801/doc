@@ -102,3 +102,6 @@ public Handler mHandler = new Handler() {
     </LinearLayout>
 
 
+3. actionbar?
+
+http://stackoverflow.com/questions/17076958/change-actionbar-color-programmatically-more-than-once/17198657#17198657
