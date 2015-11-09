@@ -1,5 +1,8 @@
 package com.reazr.house801;
-
+/*
+* http://stackoverflow.com/questions/9360461/changing-edittext-height-and-width-on-runtime-with-some-animation
+*
+* */
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
