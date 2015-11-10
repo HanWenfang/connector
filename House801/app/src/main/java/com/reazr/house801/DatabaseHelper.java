@@ -190,7 +190,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
     public ArrayList<Msg> getChatMessage(int pcid) {
         ArrayList<Msg> msgs = new ArrayList<Msg>();
-        String query = String.format("select * from %s where cid=?%d order by id asc", TABLE_CHAT_MESSAGE, pcid);
+        String query = String.format("select * from %s where cid=%d order by id asc", TABLE_CHAT_MESSAGE, pcid);
         SQLiteDatabase db = getReadableDatabase();
 
         Cursor cursor = db.rawQuery(query, null);
