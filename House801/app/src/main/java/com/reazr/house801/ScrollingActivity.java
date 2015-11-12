@@ -33,6 +33,7 @@ public class ScrollingActivity extends AppCompatActivity{
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private ArrayList<Connector> connectors;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +53,10 @@ public class ScrollingActivity extends AppCompatActivity{
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        ArrayList<Connector> connectors = DatabaseHelper.getsInstance(ScrollingActivity.this).getAllConnector();
+        connectors = DatabaseHelper.getsInstance(ScrollingActivity.this).getAllConnector();
 
         mAdapter = new MyAdapter(connectors);
+
         mRecyclerView.setAdapter(mAdapter);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -78,15 +80,27 @@ public class ScrollingActivity extends AppCompatActivity{
         switch (requestCode) {
             case 1:
                 if (resultCode == RESULT_OK) {
-                    int connectId = data.getIntExtra("connectId", -1);
-                    Connector connector = DatabaseHelper.getsInstance(ScrollingActivity.this).getConnector(connectId);
+                    if (data == null) {
+                        Log.d(TAG, "data is null");
+                    }
 
-                    mAdapter.notifyDataSetChanged();
-                    mAdapter.
+                    int connectId = (int)data.getLongExtra("connectId", -1L);
+
+                    Connector connector = DatabaseHelper.getsInstance(ScrollingActivity.this).getConnector(connectId);
+                    if(connector == null) {
+                        Log.d(TAG, String.format("resultback connectorId=%d", connectId));
+                    }
+                    Log.d(TAG, String.format("resultback cid=%d type=%d host=%s port=%d", connector.cid, connector.type, connector.host, connector.port));
+                    connectors.add(connector);
+                    updateUI();
                 }
         }
 
 
+    }
+
+    public void updateUI() {
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -164,7 +178,7 @@ public class ScrollingActivity extends AppCompatActivity{
 
     private class MyAdapter extends RecyclerView.Adapter<ConnectorHolder> {
 
-        private List<Connector> connectors;
+        public List<Connector> connectors;
 
         public MyAdapter(List<Connector> connectors) {
             this.connectors = connectors;

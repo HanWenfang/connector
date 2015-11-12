@@ -173,7 +173,8 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
     public Connector getConnector(int connectId) {
         Connector connector = null;
-        String query = String.format("select * from %s where id=? limit 1", TABLE_CONNECTOR, connectId);
+        String query = String.format("select * from %s where id=%d limit 1", TABLE_CONNECTOR, connectId);
+        Log.d(TAG, query);
         SQLiteDatabase db = getReadableDatabase();
 
         Cursor cursor = db.rawQuery(query, null);
