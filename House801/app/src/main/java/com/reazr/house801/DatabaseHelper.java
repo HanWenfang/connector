@@ -25,7 +25,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     private static DatabaseHelper sInstance;
 
     private static final String DATABASE_NAME = "reazr";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 4;
 
     private static final String TABLE_CONNECTOR = "connector";
     private static final String KEY_CONNECTOR_ID = "id";
@@ -71,11 +71,25 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         db.execSQL(CREATE_CHAT_MSG_TABLE);
     }
 
+    public void onCreateUpdate(SQLiteDatabase db) {
+
+        String CREATE_CHAT_MSG_TABLE = "CREATE TABLE " + TABLE_CHAT_MESSAGE +
+                "( " +
+                KEY_CHAT_MESSAGE_ID + " INTEGER PRIMARY KEY, " +
+                KEY_CHAT_CONNECTOR_CID + " INTEGER, " +
+                KEY_CHAT_AUTHOR + " INTEGER, " +
+                KEY_CHAT_MESSAGE + " TEXT" +
+                ")";
+
+        Log.d(TAG, String.format("onCreateUpdate CREATE_CHAT_MSG_TABLE = %s",CREATE_CHAT_MSG_TABLE));
+        db.execSQL(CREATE_CHAT_MSG_TABLE);
+    }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion != newVersion) {
-
-
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAT_MESSAGE);
+            onCreateUpdate(db);
         }
     }
 
@@ -155,6 +169,36 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         }
 
         return cid;
+    }
+
+    public Connector getConnector(int connectId) {
+        Connector connector = null;
+        String query = String.format("select * from %s where id=? limit 1", TABLE_CONNECTOR, connectId);
+        SQLiteDatabase db = getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(query, null);
+        try {
+            if (cursor.moveToFirst()) {
+                do {
+                    int cid = cursor.getInt(cursor.getColumnIndex(KEY_CONNECTOR_ID));
+                    int type = cursor.getInt(cursor.getColumnIndex(KEY_CONNECTOR_TYPE));
+                    String host = cursor.getString(cursor.getColumnIndex(KEY_CONNECTOR_HOST));
+                    int port = cursor.getInt(cursor.getColumnIndex(KEY_CONNECTOR_PORT));
+                    Log.d(TAG, String.format("cid=%d type=%d host=%s port=%d", cid, type, host, port));
+
+                    connector = new Connector(cid, type, host, port);
+
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null && cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+
+        return connector;
     }
 
     public ArrayList<Connector> getAllConnector() {

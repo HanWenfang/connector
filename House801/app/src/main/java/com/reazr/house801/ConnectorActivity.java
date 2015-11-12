@@ -67,7 +67,7 @@ public class ConnectorActivity extends AppCompatActivity {
 
     public static void actionStart(Context context) {
         Intent intent = new Intent(context, ConnectorActivity.class);
-        context.startActivities(new Intent[]{intent});
+        context.startActivity(intent);
     }
 
     /**
@@ -188,6 +188,7 @@ public class ConnectorActivity extends AppCompatActivity {
         private final int mPort;
         private final int mType;
 
+        private long connectId;
         RecordTask(String host, int port, int type) {
             mHost= host;
             mPort = port;
@@ -197,17 +198,21 @@ public class ConnectorActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(Void... params) {
             Connector connector = new Connector(mType, mHost, mPort);
-
-            DatabaseHelper.getsInstance(ConnectorActivity.this).insertConnector(connector);
+            Log.d(TAG, String.format("host=%s, port=%d, type=%s", mHost, mPort, mType));
+            connectId = DatabaseHelper.getsInstance(ConnectorActivity.this).insertConnector(connector);
             return true;
         }
 
         @Override
         protected void onPostExecute(final Boolean success) {
             mRecordTask = null;
-            showProgress(false);
+            showProgress(true);
 
             if (success) {
+                Intent intent = new Intent();
+                intent.putExtra("connectId", connectId);
+                setResult(RESULT_OK, intent);
+
                 finish();
             } else {
                 mHostView.setError("some error happens.");

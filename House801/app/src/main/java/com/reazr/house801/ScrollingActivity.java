@@ -3,12 +3,16 @@ package com.reazr.house801;
 * android list item layout:
 * http://www.androidhive.info/2012/02/android-custom-listview-with-image-and-text/
 *
+* recycleview
+* http://www.uml.org.cn/mobiledev/201504213.asp
 * */
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -46,6 +50,7 @@ public class ScrollingActivity extends AppCompatActivity{
 
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         ArrayList<Connector> connectors = DatabaseHelper.getsInstance(ScrollingActivity.this).getAllConnector();
 
@@ -59,9 +64,28 @@ public class ScrollingActivity extends AppCompatActivity{
                 //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_SHORT)
                 //        .setAction("Action", null).show();
 
-                ConnectorActivity.actionStart(ScrollingActivity.this);
+                //ConnectorActivity.actionStart(ScrollingActivity.this);
+                Intent intent = new Intent(ScrollingActivity.this, ConnectorActivity.class);
+                startActivityForResult(intent, 1);
             }
         });
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        switch (requestCode) {
+            case 1:
+                if (resultCode == RESULT_OK) {
+                    int connectId = data.getIntExtra("connectId", -1);
+                    Connector connector = DatabaseHelper.getsInstance(ScrollingActivity.this).getConnector(connectId);
+
+                    mAdapter.notifyDataSetChanged();
+                    mAdapter.
+                }
+        }
+
 
     }
 
@@ -146,6 +170,11 @@ public class ScrollingActivity extends AppCompatActivity{
             this.connectors = connectors;
         }
 
+        public void addData(Connector conn) {
+            connectors.add(conn);
+            notifyItemInserted(connectors.size());
+        }
+
         @Override
         public ConnectorHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
@@ -163,6 +192,7 @@ public class ScrollingActivity extends AppCompatActivity{
         public int getItemCount() {
             return connectors.size();
         }
+
     }
 
     @Override
